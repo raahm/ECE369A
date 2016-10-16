@@ -33,7 +33,29 @@ module DataMemory_tb();
 
 	initial begin
 	
-    /* Please fill in the implementation here... */
+        @(posedge Clk);
+        MemWrite <= 0;
+        MemRead <= 0;
+        Address <= 1000;
+        WriteData <= 4000;
+        @(negedge Clk);
+        @(posedge Clk);
+        @(posedge Clk);
+        MemWrite <= 1;
+        @(posedge Clk);
+        MemWrite <= 0;
+        @(negedge Clk);
+        MemWrite <= 1;
+        WriteData <= 5000;
+        @(posedge Clk);
+        MemWrite <= 0;
+        MemRead <= 1;
+        @(posedge Clk);
+        Address <= 1001;
+        @(posedge Clk);
+        @(posedge Clk);
+        @(posedge Clk);
+        
 	
 	end
 

@@ -52,7 +52,18 @@ module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData);
     //loop to initialize the values in the data memory
     initial begin
         for(Counter = 0; Counter < 1024; Counter = Counter + 1) begin
-            
+            Memory[Counter] <= 0;
+        end
+    end
+    
+    always @(posedge Clk) begin
+        if (MemRead == 1) begin
+            ReadData <= Memory[Address];
+        end
+    end
+    always @(negedge Clk) begin
+        if (MemWrite == 1) begin
+            Memory[Address] <= WriteData;
         end
     end
 
