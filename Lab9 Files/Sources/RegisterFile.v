@@ -70,12 +70,12 @@ module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegW
 	
 	//for better pipelining, the register read instructions will take place at the beginning of cycle;
 	//the write instructions will take place at the end.
-	always @(negedge Clk) begin
+	always @(posedge Clk) begin
 	   ReadData1 <= Registers[ReadRegister1];
 	   ReadData2 <= Registers[ReadRegister2];
 	end
 	
-	always @(posedge Clk) begin
+	always @(negedge Clk) begin
 	   if(RegWrite == 1'b1) begin
 	       Registers[WriteRegister] <= WriteData;
 	   end
