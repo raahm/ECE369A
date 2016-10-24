@@ -34,20 +34,37 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
+module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
 
 	input [4:0] ALUControl; // control bits for ALU operation
 	input [31:0] A, B;	    // inputs
 	input [4:0] Shamt;
+	input bit21, Clk;
     
     //NOTE: ALUResult2 might not need to exist because of HI LO format;
     //currently unused
 	output reg [31:0] ALUResult1;	// answer
-	output reg Zero;	    // Zero=1 if ALUResult == 0
+	output reg Zero = 0;	    // Zero=1 if ALUResult == 0
 	
-	reg [63:0] mulResult, mulResultSigned;
-	reg [31:0] HI, LO;
+	reg [63:0] mulResult, mulResultSigned, HiLoSend;
+	
+//	reg [31:0] HI=0, LO=0;
 	reg [63:0] temp;
+	reg en;
+	
+	wire [63:0] muxOut, HiLoOut;
+	
+	//utilizes internal registers to handle Hi and Lo;
+	//HiLoSend is a single 64-bit input which encompasses all the necessary
+	//bits for HI and LO. The updated HILO values are continually muxed with output
+	//from the ALU, using an enable signal as the selector. This avoids inferred latch
+	//errors.
+	
+	//module HiLoRegisters(Clk, HiLo, HiLoNew);
+	HiLoRegisters HILO(Clk, muxOut, HiLoOut);
+	
+	//module Mux64Bit2To1(out, inA, inB, sel);
+	Mux64Bit2To1 MUXHILO(muxOut, HiLoOut, HiLoSend, en);
     
     //ALU control codes
     //  00000 does add
@@ -55,7 +72,7 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
     //  00010 does mod
     //  00011 does mult (signed)
     //  00100 does shift left logical
-    //  00101 does shift right
+    //  00101 does shift right logical, rotr
     //  00110 does OR
     //  00111 does AND
     //  01000 does XOR
@@ -72,15 +89,13 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
     //  10011 does madd (signed)
     //  10100 does msub (signed)
     //  10101 does sllv
-    //  10110 does srlv
+    //  10110 does srlv, rotrv
     //  10111 does sra
     //  11000 does srav
     //  11001 does movn
     //  11010 does movz
-    //  11011 does seb
-    //  11100 does seh
-    //  11101 does rotr
-    //  11110 does rotrv
+    //  11011 does seb, seh
+
     
     //FIXME: if mul is used twice in a row, mulResult updates,
     //but ALUResult1 and ALUResult2 don't
@@ -93,8 +108,19 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
         mulResultSigned <= $signed(A) * $signed(B);
     end
     
-    always@(ALUControl or A or B or Shamt or HI or LO or temp or mulResult or mulResultSigned or ALUResult1) begin
-        
+//    always@(A,B,HI,LO) begin
+//        prevHiLo[63:32] <= HI;
+//        prevHiLo[31:0] <= LO;
+//    end
+    
+    always@(ALUControl or A or B or Shamt or temp or mulResult or mulResultSigned or bit21 or HiLoOut) begin
+    //always @(posedge Clk) begin
+        ALUResult1 <= 0;
+        temp <= 0;
+//        HI <= prevHiLo[63:32];
+//        LO <= prevHiLo[31:0];
+        HiLoSend <= 0;
+        en <= 0;
         case(ALUControl)
             5'b00000 : ALUResult1 <= A + B;
             5'b00001 : ALUResult1 <= A - B;
@@ -105,11 +131,23 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
             //
             //NOTE: may no longer apply due to HI and LO format
             5'b00011 : begin
-                HI <= mulResultSigned[63:32];
-                LO <= mulResultSigned[31:0];
+                HiLoSend <= mulResultSigned;
+                en <= 1;
             end
             5'b00100 : ALUResult1 <= B << Shamt;
-            5'b00101 : ALUResult1 <= B >> Shamt;
+            
+            //this instruction will handle srl and rotr, which have the same ALUOp code;
+            //it works by checking bit 21 of the instruction code, which is 0 for srl and 1 for rotr
+            5'b00101 : begin
+                if(bit21 == 1'b0) begin
+                    ALUResult1 <= B >> Shamt;
+                end
+                else begin
+                    temp <= {B, B};
+                    temp <= temp >> Shamt;
+                    ALUResult1 <= temp[31:0];
+                end
+            end
             5'b00110 : ALUResult1 <= A | B; 
             5'b00111 : ALUResult1 <= A & B;
             5'b01000 : ALUResult1 <= A ^ B;
@@ -121,15 +159,21 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
                     ALUResult1 <= 0;
                 end
             end
-            5'b01010 : ALUResult1 <= HI;
-            5'b01011 : ALUResult1 <= LO;
-            5'b01100 : HI <= A;
-            5'b01101 : LO <= A;
+            5'b01010 : ALUResult1 <= HiLoOut[63:32];
+            5'b01011 : ALUResult1 <= HiLoOut[31:0];
+            5'b01100 : begin
+                HiLoSend[63:32] <= A;
+                en <= 1;
+            end
+            5'b01101 : begin
+                HiLoSend[31:0] <= A;
+                en <= 1;
+            end
             5'b01110 : ALUResult1 <= mulResultSigned[31:0];
             5'b01111 : ALUResult1 <= ~(A | B);
             5'b10000 : begin
-                HI <= mulResult[63:32];
-                LO <= mulResult[31:0];
+                HiLoSend <= mulResult;
+                en <= 1;
             end
             5'b10001 : ALUResult1 <= mulResult[31:0];
             5'b10010 : begin
@@ -141,17 +185,29 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
                 end
             end
             5'b10011 : begin
-                temp <= mulResultSigned + {HI, LO};
-                HI <= temp[63:32];
-                LO <= temp[31:0];
+                temp <= mulResultSigned + HiLoOut;
+                HiLoSend <= temp;
+                en <= 1;
             end
             5'b10100 : begin
-                temp <= {HI, LO} - mulResultSigned;
-                HI <= temp[63:32];
-                LO <= temp[31:0]; 
+                temp <= HiLoOut - mulResultSigned;
+                HiLoSend <= temp;
+                en <= 1; 
             end
             5'b10101 : ALUResult1 <= B << A;
-            5'b10110 : ALUResult1 <= B >> A;
+            
+            //this instruction will handle srlv and rotrv, which have the same ALUControl codes;
+            //it works by checking bit 0 of Shamt, which is low for srlv and high for rotrv
+            5'b10110 : begin
+                if(Shamt[0] == 1'b0) begin
+                    ALUResult1 <= B >> A;
+                end
+                else begin
+                    temp <= {B, B};
+                    temp <= temp >> A;
+                    ALUResult1 <= temp[31:0];
+                end
+            end
             5'b10111 : ALUResult1 <= $signed(B)>>>Shamt;
             5'b11000 : ALUResult1 <= $signed(B)>>>A;
             5'b11001 : begin
@@ -164,20 +220,20 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt);
                     ALUResult1 <= A;
                 end
             end
-            5'b11011 : ALUResult1 <= {{24{B[7]}}, B[7:0]};
-            5'b11100 : ALUResult1 <= {{16{B[15]}}, B[15:0]};
-            5'b11101 : begin
-                temp <= {B, B};
-                temp <= temp >> Shamt;
-                ALUResult1 <= temp[31:0];
+            
+            //handles seb and seh depending on Shamt value; seb for 10000 and seh for 11000
+            5'b11011 : begin
+                if (Shamt == 5'b10000) begin
+                    ALUResult1 <= {{24{B[7]}}, B[7:0]};
+                end
+                else begin
+                    ALUResult1 <= {{16{B[15]}}, B[15:0]};
+                end
             end
-            5'b11110 : begin
-                temp <= {B, B};
-                temp <= temp >> A;
-                ALUResult1 <= temp[31:0];
+            default: begin
+                ALUResult1 <= 0;
             end
          endcase
-         
          
          if (ALUResult1 == 0) begin
             Zero <= 1;
