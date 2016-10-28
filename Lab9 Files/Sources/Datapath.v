@@ -27,11 +27,14 @@ module Datapath(Reset, Clk, ALUResult1);
     wire [31:0] MUX2Out; 
     wire [31:0] MUX3Out;
 //    wire [31:0] NORMUXOut;
+    wire[31:0] SBHMUXOut;
+    
+    wire [31:0] Reduced;
     
     wire Zero;
     
     //temporary until the controller is implemented
-    wire RegDst, RegWrite, ALUSrc, MemWrite, MemRead, Branch, BranchSel;
+    wire RegDst, RegWrite, ALUSrc, MemWrite, MemRead, Branch, BranchSel, OpSelect, SBHMuxSel;
     wire [1:0] Jump;
     wire [1:0] MemToReg;
     //reg NORMUXSel;
@@ -90,6 +93,12 @@ module Datapath(Reset, Clk, ALUResult1);
     
     //module AND(A,B,ANDOut);
     AND BranchAnd(Branch, Zero, BranchSel);
+    
+    //module StoreBH(Reduced, InSignal, OpSelect);
+    StoreBH SBH(Reduced, ReadData2, OpSelect);
+    
+    //module Mux32Bit2To1(out, inA, inB, sel);
+    Mux32Bit2To1 SBHMux(SBHMuxOut, ReadData2, Reduced, SBHMuxSel);
     
     //module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData);
     DataMemory DM(ALUResult1, ReadData2, Clk, MemWrite, MemRead, ReadDataMem);

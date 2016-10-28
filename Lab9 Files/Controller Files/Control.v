@@ -12,8 +12,8 @@ module Control(	CtrlInput,
 				ALUOp);
 				
 	input [5:0] CtrlInput;
-	output reg [1:0] MemtoReg, Jump;
-	output reg RegDst, Branch, MemRead, MemWrite, ALUSrc, RegWrite;
+	output reg [1:0] Jump;
+	output reg RegDst, Branch, MemRead, MemWrite, ALUSrc, RegWrite, MemtoReg;
 	output reg [5:0] ALUOp;
 	
 	always@(*) begin
@@ -54,7 +54,7 @@ module Control(	CtrlInput,
 							RegWrite <= 1'b0;
 							MemRead <= 1'b0;
 							MemWrite <= 1'b0;
-							Branch <= 1'b1;
+							Branch <= 1'b0;
 							Jump <= 2'b01;
 							ALUOp <= 6'b000_010;
 						end

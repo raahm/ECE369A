@@ -159,7 +159,7 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
                 end
             end
 			//Note: look at assignment type; currently left without '<' in order to test ALU's Zero flag
-            5'b00110 : ALUResult1 = A | B; 
+            5'b00110 : ALUResult1 <= A | B; 
             5'b00111 : ALUResult1 <= A & B;
             5'b01000 : ALUResult1 <= A ^ B;
             5'b01001 : begin
