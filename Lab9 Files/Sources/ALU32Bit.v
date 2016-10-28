@@ -158,6 +158,7 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
                     ALUResult1 <= temp[31:0];
                 end
             end
+			//Note: look at assignment type; currently left without '<' in order to test ALU's Zero flag
             5'b00110 : ALUResult1 = A | B; 
             5'b00111 : ALUResult1 <= A & B;
             5'b01000 : ALUResult1 <= A ^ B;
@@ -247,6 +248,8 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
             end
          endcase
          
+		 //FIXME: Zero flag is setting with a delay, which is breaking jump instructions.
+		 //may have something to do with '<=' v. '='
          if (ALUResult1 == 0) begin
             Zero = 1;
          end

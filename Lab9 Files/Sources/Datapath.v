@@ -1,11 +1,17 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Design to implement a rudimentary datapath to allow for completion of R- 
-// and I-Type instructions.
 //
-// NOTE: this does not implement "top" portion of datapath, i.e. branch adder,
-// as this current version does not need to implement branch-type instructions.
-// This will be updated in future versions. 
+// Jacob Toman-Ibarra, Mubarak Hassan
+// Percent effort: 50/50
+//
+// Date: 28 October 2016
+// Fully designed and implemented datapath.
+//
+// Datapath executes one instruction per cycle and is capable of executing branch
+// and memory instructions.
+//
+// Datapath takes in input Reset and Clk signals, and outputs the result of the
+// ALU's operations in order to allow for proper simulation.
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
