@@ -16,11 +16,11 @@
 //
 // FUNCTIONALITY:-
 // Design a program counter register that holds the current address of the 
-// instruction memory.  This module should be updated at the positive edge of 
+// instruction Memory.  This module should be updated at the positive edge of 
 // the clock. The contents of a register default to unknown values or 'X' upon 
 // instantiation in your module. Hence, please add a synchronous 'Reset' 
 // signal to your PC register to enable global reset of your datapath to point 
-// to the first instruction in your instruction memory (i.e., the first address 
+// to the first instruction in your instruction Memory (i.e., the first address 
 // location, 0x00000000H).
 ////////////////////////////////////////////////////////////////////////////////
 
