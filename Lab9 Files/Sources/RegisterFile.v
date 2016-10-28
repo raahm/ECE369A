@@ -62,20 +62,24 @@ module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegW
 	//the collection of 32-bit registers which will be used by the CPU
 	reg [31:0] Registers[0:31];
 	
-	initial begin
-	   for(Counter = 0; Counter < 32; Counter = Counter + 1) begin
-	       Registers[Counter] <= 0;
-	   end
-	end
+//	initial begin
+//	   for(Counter = 0; Counter < 32; Counter = Counter + 1) begin
+//	       Registers[Counter] <= 0;
+//	   end
+//	end
+
+    initial begin
+        Registers[0] <= 0;
+    end
 	
 	//for better pipelining, the register read instructions will take place at the beginning of cycle;
 	//the write instructions will take place at the end.
-	always @(posedge Clk) begin
+	always @(negedge Clk) begin
 	   ReadData1 <= Registers[ReadRegister1];
 	   ReadData2 <= Registers[ReadRegister2];
 	end
 	
-	always @(negedge Clk) begin
+	always @(posedge Clk) begin
 	   if(RegWrite == 1'b1) begin
 	       Registers[WriteRegister] <= WriteData;
 	   end
