@@ -1,0 +1,6 @@
+Memory[0] = 32'h0;
+Memory[1] = 32'h1;
+Memory[2] = 32'h2;
+Memory[3] = 32'h3;
+Memory[4] = 32'h4;
+Memory[5] = -32'h1;
