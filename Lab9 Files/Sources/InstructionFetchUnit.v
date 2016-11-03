@@ -37,17 +37,18 @@
 // which generates a continuous clock pulse into the module.
 ////////////////////////////////////////////////////////////////////////////////
 
-module InstructionFetchUnit(Instruction, Reset, Shifted, BranchSel, Clk);
+module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk);
 
     input Reset, Clk, BranchSel;
-    input [31:0] Shifted;
+    input [1:0] JumpSel;
+    input [31:0] SignExtended;
     output [31:0] Instruction;
     
     wire [31:0] PCResult, PCAddResult;
-    wire [31:0] AddResult, MUXOut;
+    wire [31:0] AddResult, BranchMUXOut, Shifted, JumpMUXOut;
     
     //module ProgramCounter(Address, PCResult, Reset, Clk);
-    ProgramCounter PC(MUXOut, PCResult, Reset, Clk);
+    ProgramCounter PC(JumpMUXOut, PCResult, Reset, Clk);
     
     //module PCAdder(PCResult, PCAddResult);
     PCAdder PCAdd(PCResult, PCAddResult);
@@ -55,11 +56,17 @@ module InstructionFetchUnit(Instruction, Reset, Shifted, BranchSel, Clk);
     //module InstructionMemory(Address, Instruction);
     InstructionMemory IM(PCResult, Instruction);
     
+    //module ShiftLeft2(inputVal, shiftedVal);
+    ShiftLeft2 SHL(SignExtended, Shifted);
+    
     //module ADD(A,B,Out);
     ADD BranchAdd(Shifted, PCAddResult, AddResult);
     
     //module Mux32Bit2To1(out, inA, inB, sel);
-    Mux32Bit2To1 ADDMux(MUXOut, PCAddResult, AddResult, BranchSel);
+    Mux32Bit2To1 BranchMux(BranchMUXOut, PCAddResult, AddResult, BranchSel);
+    
+    //module Mux32Bit4To1(out, inA, inB, inC, inD, sel);
+    Mux32Bit4To1 JumpMux(JumpMUXOut, BranchMUXOut, Shifted, 1, 0, JumpSel);
 
 endmodule
 
