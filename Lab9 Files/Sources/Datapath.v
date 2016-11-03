@@ -21,7 +21,8 @@ module Datapath(Reset, Clk, ALUResult1);
     input Reset, Clk;
     output wire [31:0] ALUResult1;
     
-    wire [31:0] Instruction, ReadData1, ReadData2, SignExtended, ReadDataMem, Shifted;
+    wire [31:0] Instruction, ReadData1, ReadData2, SignExtended, ReadDataMem;
+    //wire [31:0] Shifted;
     
     wire [4:0] MUX1Out;
     wire [31:0] MUX2Out; 
@@ -31,10 +32,15 @@ module Datapath(Reset, Clk, ALUResult1);
     
     wire [31:0] Reduced;
     
-    wire Zero;
+    wire Zero, BranchSend;
+    
+    wire [7:0] ByteMuxOut;
+    wire [15:0] HalfwordMuxOut;
+    
+    wire [31:0] ExtendedHalfWord, ExtendedByte;
     
     //temporary until the controller is implemented
-    wire RegDst, RegWrite, ALUSrc, MemWrite, MemRead, Branch, BranchSel, OpSelect, SBHMuxSel;
+    wire RegDst, RegWrite, ALUSrc, MemWrite, MemRead, Branch, BranchSel1, BranchSel2, BranchOr, OpSelect, SBHMuxSel;
     wire [1:0] Jump;
     wire [1:0] MemToReg;
     //reg NORMUXSel;
@@ -70,8 +76,8 @@ module Datapath(Reset, Clk, ALUResult1);
 
     ALUControl ALUC(ALUOp, Instruction[5:0], ALUControl);
     
-    //module InstructionFetchUnit(Instruction, Reset, Shifted, BranchSel, Clk);
-    InstructionFetchUnit IFU(Instruction, Reset, Shifted, BranchSel, Clk);
+    //module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk);
+    InstructionFetchUnit IFU(Instruction, Reset, SignExtended, BranchOr, Jump, Clk);
     
     //module Mux5Bit2to1(out, inA, inB, sel);
     Mux5Bit2to1 MUX1(MUX1Out, Instruction[20:16], Instruction[15:11], RegDst);
@@ -80,19 +86,22 @@ module Datapath(Reset, Clk, ALUResult1);
     RegisterFile RF(Instruction[25:21], Instruction[20:16], MUX1Out, MUX3Out, RegWrite, Clk, ReadData1, ReadData2);
     
     //module SignExtension(in, out);
-    SignExtension SignExtend(Instruction[15:0], SignExtended);
+    SignExtension SignExtend1(Instruction[15:0], SignExtended);
     
     //module Mux32Bit2To1(out, inA, inB, sel);
     Mux32Bit2To1 MUX2(MUX2Out, ReadData2, SignExtended, ALUSrc);
     
-    //module ShiftLeft2(inputVal, shiftedVal);
-    ShiftLeft2 SHL(SignExtended, Shifted);
-    
-    //module ALU32Bit(ALUControl, A, B, ALUResult1, ALUResult2, Zero, Shamt);
-    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, Instruction[10:6], Instruction[21], Clk);
+    //module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
+    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, Instruction[10:6], Instruction[21], Instruction[16], Clk);
     
     //module AND(A,B,ANDOut);
-    AND BranchAnd(Branch, Zero, BranchSel);
+    AND BranchAnd1(Branch, Zero, BranchSel1);
+    
+    //module AND(A,B,ANDOut);
+    AND BranchAnd2(Branch, BranchSend, BranchSel2);
+    
+    //module OR(A, B, OROut);
+    OR OrBranch(BranchSel1, BranchSel2, BranchOr);
     
     //module StoreBH(Reduced, InSignal, OpSelect);
     StoreBH SBH(Reduced, ReadData2, OpSelect);
@@ -103,6 +112,21 @@ module Datapath(Reset, Clk, ALUResult1);
     //module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData);
     DataMemory DM(ALUResult1, ReadData2, Clk, MemWrite, MemRead, ReadDataMem);
     
-    Mux32Bit2To1 MUX3(MUX3Out, ALUResult1, ReadDataMem, MemToReg);
+    //module Mux8Bit4To1(out, inA, inB, inC, inD, sel);
+    Mux8Bit4To1 ByteMux(ByteMuxOut, ReadDataMem[31:24], ReadDataMem[23:16], ReadDataMem[15:8], ReadDataMem[7:0], ALUResult1[1:0]);
+    
+    //module Mux16Bit2To1(out, inA, inB, sel);
+    Mux16Bit2To1 HalfwordMux(HalfwordMuxOut, ReadDataMem[31:16], ReadDataMem[15:0], ALUResult1[0]);
+    
+    //module SignExtension(in, out);
+    SignExtension SignExtend2(HalfwordMuxOut, ExtendedHalfWord);
+    
+    //module SignExtendByte(in, out);
+    SignExtendByte ByteExtender(ByteMuxOut, ExtendedByte);
+    
+    //Mux32Bit2To1 MUX3(MUX3Out, ALUResult1, ReadDataMem, MemToReg);
+    
+    //module Mux32Bit4To1(out, inA, inB, inC, inD, sel);
+    Mux32Bit4To1 MUX3(MUX3Out, ALUResult1, ReadDataMem, ExtendedByte, ExtendedHalfWord, MemToReg);
 
 endmodule

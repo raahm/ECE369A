@@ -59,14 +59,14 @@ module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData);
         Memory[5] = -32'h1;
     end
     
-    always @(posedge Clk) begin
+    always @(*) begin
         if (MemRead == 1) begin
-            ReadData <= Memory[Address];
+            ReadData <= Memory[Address>>2];
         end
     end
-    always @(negedge Clk) begin
+    always @(posedge Clk) begin
         if (MemWrite == 1) begin
-            Memory[Address] <= WriteData;
+            Memory[Address>>2] <= WriteData;
         end
     end
 

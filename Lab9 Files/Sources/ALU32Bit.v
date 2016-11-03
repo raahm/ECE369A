@@ -34,17 +34,18 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
+module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
 
 	input [4:0] ALUControl; // control bits for ALU operation
 	input [31:0] A, B;	    // inputs
 	input [4:0] Shamt;
-	input bit21, Clk;
+	input bit21, bit16, Clk;
     
     //NOTE: ALUResult2 might not need to exist because of HI LO format;
     //currently unused
 	output reg [31:0] ALUResult1;	// answer
-	output reg Zero;	    // Zero=1 if ALUResult == 0
+	output Zero;	    // Zero=1 if ALUResult == 0
+	output reg BranchSend;
 	
 	reg [63:0] mulResult, mulResultSigned;
 	reg [63:0] HiLoSend;
@@ -98,6 +99,10 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
     //  11001 does movn
     //  11010 does movz
     //  11011 does seb, seh
+    //  11100 does bgez, bltz
+    //  11101 does blez
+    //  11110 does bgtz
+    //  11111 does bne
 
     
     //FIXME: if mul is used twice in a row, mulResult updates,
@@ -125,12 +130,13 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
     
     always@(ALUControl, A, B, Shamt, mulResult, mulResultSigned, bit21) begin
     //always @(posedge Clk) begin
-        ALUResult1 <= 0;
+        ALUResult1 <= -1;
         temp <= 0;
 //        HI <= prevHiLo[63:32];
 //        LO <= prevHiLo[31:0];
         HiLoSend <= 0;
         en <= 0;
+        BranchSend <= 0;
         case(ALUControl)
             5'b00000 : ALUResult1 <= A + B;
             5'b00001 : ALUResult1 <= A - B;
@@ -243,21 +249,48 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, Shamt, bit21, Clk);
                     ALUResult1 <= {{16{B[15]}}, B[15:0]};
                 end
             end
+            
+            //handles bgez and bltz depending on bit 16 of instruction;
+            //bgez for 1 and bltz for 0
+            5'b11100 : begin
+//                if(bit16 == 1) begin
+//                    if(A >= 0) begin
+//                        BranchSend <= 1;
+//                    end
+//                end
+//                else begin
+//                    if(A < 0) begin
+//                        BranchSend <= 1;
+//                    end
+//                end
+                if((bit16 == 1'b1 && $signed(A) >=  1'sb0) || (bit16 == 0 && $signed(A) < 0)) begin
+                    BranchSend <= 1;
+                end
+            end
+            5'b11101 : begin
+                if($signed(A) <= 0) begin
+                    BranchSend <= 1;
+                end
+            end
+            5'b11110 : begin
+                if($signed(A) > 0) begin
+                    BranchSend <= 1;
+                end
+            end
+            5'b11111 : begin
+                if(A != B) begin
+                    BranchSend <= 1;
+                end
+            end
             default: begin
                 ALUResult1 <= 0;
             end
          endcase
-         
-		 //FIXME: Zero flag is setting with a delay, which is breaking jump instructions.
-		 //may have something to do with '<=' v. '='
-         if (ALUResult1 == 0) begin
-            Zero = 1;
-         end
-         else begin
-            Zero = 0;
-         end
     
     end
+    
+    //assign statement; sets zero flag high if ALUResult1 is 0; low otherwise
+    assign Zero = (ALUResult1 == 0) ? 1 : 0;
     
 endmodule
 

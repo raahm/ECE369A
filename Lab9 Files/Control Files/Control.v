@@ -54,7 +54,7 @@ module Control(	CtrlInput,
 							RegWrite <= 1'b0;
 							MemRead <= 1'b0;
 							MemWrite <= 1'b0;
-							Branch <= 1'b1;
+							Branch <= 1'b0;
 							Jump <= 2'b01;
 							ALUOp <= 6'b000_010;
 						end
