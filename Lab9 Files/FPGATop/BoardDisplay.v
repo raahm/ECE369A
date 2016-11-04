@@ -8,11 +8,11 @@
 //
 //////////////////////////////////////////////////////////////
 
-module BoardDisplay();
+module BoardDisplay(Clk, Reset, en_out, out7);
 	
 	input Clk, Reset;
-	output reg [7:0] en_out;
-	output [6:0] out7;
+	output wire [7:0] en_out;
+	output wire [6:0] out7;
 	
 	wire [31:0] PCResult, WriteData;
 	
@@ -34,7 +34,7 @@ module BoardDisplay();
 	//
 	
 	//module Two4DigitDisplay(Clk, NumberA, NumberB, out7, en_out);
-	Two4DigitDisplay(Clk, PCResult, WriteData, out7, en_out);
+	Two4DigitDisplay DigitDisplay(Clk, PCResult[7:0], WriteData[7:0], out7, en_out);
 	
 	
 	
