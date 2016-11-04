@@ -128,8 +128,9 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
 //        end
     end
     
-    always@(ALUControl, A, B, Shamt, mulResult, mulResultSigned, bit21) begin
+    //always@(ALUControl, A, B, Shamt, mulResult, mulResultSigned, bit21, bit16) begin
     //always @(posedge Clk) begin
+    always@(*) begin
         ALUResult1 <= -1;
         temp <= 0;
 //        HI <= prevHiLo[63:32];

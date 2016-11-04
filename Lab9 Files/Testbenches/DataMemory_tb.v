@@ -14,8 +14,12 @@ module DataMemory_tb();
     reg             Clk;
     reg             MemWrite;
     reg             MemRead;
+    
+    reg [1:0] StoreMode;
 
     wire [31:0] ReadData;
+    
+    //module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData, StoreMode);
 
     DataMemory u0(
         .Address(Address), 
@@ -23,7 +27,8 @@ module DataMemory_tb();
         .Clk(Clk), 
         .MemWrite(MemWrite), 
         .MemRead(MemRead), 
-        .ReadData(ReadData)
+        .ReadData(ReadData),
+        .StoreMode(StoreMode)
     ); 
 
 	initial begin
@@ -38,6 +43,7 @@ module DataMemory_tb();
         MemRead <= 0;
         Address <= 1000;
         WriteData <= 4000;
+        StoreMode <= 2'b00;
         @(negedge Clk);
         @(posedge Clk);
         @(posedge Clk);
@@ -49,12 +55,27 @@ module DataMemory_tb();
         WriteData <= 5000;
         @(posedge Clk);
         MemWrite <= 0;
+        @(posedge Clk);
         MemRead <= 1;
         @(posedge Clk);
-        Address <= 1001;
+        Address <= 3;
         @(posedge Clk);
+        MemWrite <= 1;
+        WriteData <= 128;
+        StoreMode <= 2'b01;
         @(posedge Clk);
+        MemWrite <= 0;
         @(posedge Clk);
+//        Address <= 1;
+//        @(posedge Clk);
+//        Address <= 1;
+//        @(posedge Clk);
+//        Address <= 2;
+//        @(posedge Clk);
+//        Address <= 3;
+//        @(posedge Clk);
+//        WriteData <= 32'b11111111000000001111111101010101;
+//        @(posedge Clk);
         
 	
 	end

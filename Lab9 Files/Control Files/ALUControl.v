@@ -11,6 +11,7 @@ module ALUControl(	ALUOp,
 	
 	always@(*) begin
 	   ALUControlOutput <= 0;
+	   JumpMux <= 0;
 		case (ALUOp)
 			
 			6'b000_000: begin
@@ -156,7 +157,8 @@ module ALUControl(	ALUOp,
 													ALUControlOutput <= 5'b10010;									
 													JumpMux <= 2'b00;
 												end
-									
+									default : begin
+									end
 						    endcase
 						end			
 			
@@ -261,6 +263,8 @@ module ALUControl(	ALUOp,
 												ALUControlOutput <= 5'b10100;
 												JumpMux <= 2'b00;
 											end
+								default : begin
+								end			
 							endcase
 						end
 
@@ -291,7 +295,8 @@ module ALUControl(	ALUOp,
 						end
 
 			
-
+            default : begin
+            end
 		endcase	
 	end	
 endmodule
