@@ -89,7 +89,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //    Mux5Bit2to1 MUX1(MUX1Out, Instruction[20:16], Instruction[15:11], RegDst);
     
     //module Mux5Bit4To1(out, inA, inB, inC, inD, sel);
-    Mux5Bit4To1 MUX1(MUX1Out, Instruction[20:16], Instruction[15:11], 5'b11111, 0, RegDst);
+    Mux5Bit4To1 MUX1(MUX1Out, Instruction[20:16], Instruction[15:11], 5'b11111, 5'b00000, RegDst);
     
     //module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegWrite, Clk, ReadData1, ReadData2);
     RegisterFile RF(Instruction[25:21], Instruction[20:16], MUX1Out, JalMUXOut, RegWrite, Clk, ReadData1, ReadData2);

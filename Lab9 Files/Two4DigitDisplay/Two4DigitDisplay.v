@@ -35,6 +35,9 @@ module Two4DigitDisplay(Clk, NumberA, NumberB, out7, en_out);
          
     //-- divider counter for ~95.3Hz refresh rate (with 100MHz main clock)
     reg  [19:0] cnt;
+    initial begin
+        cnt <= 0;
+    end
     always @(posedge Clk) begin
         cnt <= cnt + 1;
     end
