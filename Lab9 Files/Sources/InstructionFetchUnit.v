@@ -37,14 +37,16 @@
 // which generates a continuous clock pulse into the module.
 ////////////////////////////////////////////////////////////////////////////////
 
-module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk);
+module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk, PCResult, ALUResult);
 
     input Reset, Clk, BranchSel;
     input [1:0] JumpSel;
     input [31:0] SignExtended;
+    input [31:0] ALUResult;
     output [31:0] Instruction;
+    output wire [31:0] PCResult;
     
-    wire [31:0] PCResult, PCAddResult;
+    wire [31:0] PCAddResult;
     wire [31:0] AddResult, BranchMUXOut, Shifted, JumpMUXOut;
     
     //module ProgramCounter(Address, PCResult, Reset, Clk);
@@ -66,7 +68,7 @@ module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel
     Mux32Bit2To1 BranchMux(BranchMUXOut, PCAddResult, AddResult, BranchSel);
     
     //module Mux32Bit4To1(out, inA, inB, inC, inD, sel);
-    Mux32Bit4To1 JumpMux(JumpMUXOut, BranchMUXOut, Shifted, 1, 0, JumpSel);
+    Mux32Bit4To1 JumpMux(JumpMUXOut, BranchMUXOut, Shifted, ALUResult, 0, JumpSel);
 
 endmodule
 

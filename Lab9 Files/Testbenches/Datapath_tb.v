@@ -22,10 +22,10 @@
 
 module Datapath_tb();
     reg Reset_tb, Clk_tb;
-    wire [31:0] ALUResult1_tb;
+    wire [31:0] PCResult_tb, JalMUXOut_tb;
     
-    //module Datapath(Reset, Clk, ALUResult1);
-    Datapath u0(Reset_tb, Clk_tb, ALUResult1_tb);
+    //module Datapath(Reset, Clk, PCResult, JalMUXOut);
+    Datapath u0(Reset_tb, Clk_tb, PCResult_tb, JalMUXOut_tb);
     
 	initial begin
         Clk_tb <= 1'b0;
