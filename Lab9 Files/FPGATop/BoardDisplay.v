@@ -8,15 +8,23 @@
 //
 //////////////////////////////////////////////////////////////
 
-module BoardDisplay(Clk, Reset, en_out, out7);
+module BoardDisplay(Clk, Reset, ResetClk, en_out, out7);
 	
-	input Clk, Reset;
+	input Clk, Reset, ResetClk;
 	output wire [7:0] en_out;
 	output wire [6:0] out7;
 	
 	wire [31:0] PCResult, WriteData;
+	wire ClkOut;
 	
-	// Note: may need separate clock divider. Not quite sure.
+	//
+	// One second clock divider to be used by the datapath;
+	// will allow values to be readable on the seven-segment
+	// display.
+	//
+	
+	//module ClkDiv(Reset, Clk, ClkOut);
+	ClkDiv DATAClk(ResetClk, Clk, ClkOut);
 
 	//
 	// Main datapath file; deals with all of the CPU operations.
@@ -25,7 +33,7 @@ module BoardDisplay(Clk, Reset, en_out, out7);
 	//
 	
 	//module Datapath(Reset, Clk, PCResult, JalMUXOut);
-	Datapath DATA(Reset, Clk, PCResult, WriteData);
+	Datapath DATA(Reset, ClkOut, PCResult, WriteData);
 	
 	//
 	// Module used to display the values of PCResult and WriteData

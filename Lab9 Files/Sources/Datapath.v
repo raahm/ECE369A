@@ -101,7 +101,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     Mux32Bit2To1 MUX2(MUX2Out, ReadData2, SignExtended, ALUSrc);
     
     //module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
-    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, Instruction[10:6], Instruction[21], Instruction[16], Clk);
+    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, Instruction[10:6], Instruction[21], Instruction[16]);
     
     //module AND(A,B,ANDOut);
     AND BranchAnd1(Branch, Zero, BranchSel1);

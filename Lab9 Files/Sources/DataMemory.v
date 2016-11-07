@@ -62,6 +62,7 @@ module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData, StoreMod
     end
     
     always @(MemRead, Address) begin
+        ReadData <= 0;
         if (MemRead == 1) begin
             ReadData <= Memory[Address>>2];
         end
