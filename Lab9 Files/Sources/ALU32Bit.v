@@ -34,12 +34,13 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
+module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16);
 
 	input [4:0] ALUControl; // control bits for ALU operation
 	input [31:0] A, B;	    // inputs
 	input [4:0] Shamt;
-	input bit21, bit16, Clk;
+	input bit21, bit16;
+	//input Clk;
     
     //NOTE: ALUResult2 might not need to exist because of HI LO format;
     //currently unused
