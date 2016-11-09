@@ -20,18 +20,26 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module HiLoRegisters(HiLo, HiLoNew);
+module HiLoRegisters(HiLoIn, HiLoOut, Clk, en);
 
-//    input Clk;
-    input [63:0] HiLo;
-    output reg [63:0] HiLoNew;
+    input Clk, en;
+    input [63:0] HiLoIn;
+    output reg [63:0] HiLoOut;
+    
+    reg [63:0] HiLoReg;
     
     //simple register that stores HiLo as one concatenated 64-bit value
     //this will be updated at each clock cycle; the old value will be muxed with
     //a new one to decide if HiLo should be updated. This will take place outside of
     //the module
-    always @(HiLo) begin
-        HiLoNew <= HiLo;
+//    assign HiLoNew = HiLo;
+    always @(negedge Clk) begin
+        HiLoOut <= HiLoReg;
+    end
+    always @(posedge Clk) begin
+        if(en == 1) begin
+            HiLoReg <= HiLoIn;
+        end
     end
 
 endmodule
