@@ -56,7 +56,7 @@ module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel
     PCAdder PCAdd(PCResult, PCAddResult);
     
     //module InstructionMemory(Address, Instruction);
-    InstructionMemory IM(PCResult, Instruction);
+    InstructionMemory913 IM(PCResult, Instruction);
     
     //module ShiftLeft2(inputVal, shiftedVal);
     ShiftLeft2 SHL(SignExtended, Shifted);

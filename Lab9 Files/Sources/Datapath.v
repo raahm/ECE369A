@@ -64,6 +64,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //    end
 
 //    module Control(	CtrlInput,
+//              FunctionCode,
 //				RegDst,
 //				ALUSrc,
 //				MemtoReg,
@@ -74,7 +75,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //				Jump,
 //				ALUOp);
 
-    Control controller(Instruction[31:26], RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, Branch, ALUOp, StoreMode, JalMuxSel);
+    Control controller(Instruction[31:26], Instruction[5:0], RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, Branch, ALUOp, StoreMode, JalMuxSel);
     
 //    module ALUControl(	ALUOp,
 //                        Funct,
@@ -101,7 +102,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     Mux32Bit2To1 MUX2(MUX2Out, ReadData2, SignExtended, ALUSrc);
     
     //module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
-    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, Instruction[10:6], Instruction[21], Instruction[16]);
+    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, Instruction[10:6], Instruction[21], Instruction[16], Clk);
     
     //module AND(A,B,ANDOut);
     AND BranchAnd1(Branch, Zero, BranchSel1);

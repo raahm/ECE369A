@@ -34,13 +34,13 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16);
+module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
 
 	input [4:0] ALUControl; // control bits for ALU operation
 	input [31:0] A, B;	    // inputs
 	input [4:0] Shamt;
 	input bit21, bit16;
-	//input Clk;
+	input Clk;
     
     //NOTE: ALUResult2 might not need to exist because of HI LO format;
     //currently unused
@@ -57,7 +57,8 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
 	
 	reg [31:0] tempA, tempB;
 	
-	wire [63:0] muxOut, HiLoOut;
+	wire [63:0] HiLoOut;
+	wire [63:0] muxOut;
 	
 	//utilizes internal registers to handle Hi and Lo;
 	//HiLoSend is a single 64-bit input which encompasses all the necessary
@@ -65,11 +66,11 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
 	//from the ALU, using an enable signal as the selector. This avoids inferred latch
 	//errors.
 	
-	//module HiLoRegisters(Clk, HiLo, HiLoNew);
-	HiLoRegisters HILO(muxOut, HiLoOut);
+	//module HiLoRegisters(HiLo, HiLoOut, Clk, en);
+	HiLoRegisters HILO(HiLoSend, HiLoOut, Clk, en);
 	
 	//module Mux64Bit2To1(out, inA, inB, sel);
-	Mux64Bit2To1 MUXHILO(muxOut, HiLoOut, HiLoSend, en);
+	//Mux64Bit2To1 MUXHILO(muxOut, HiLoOut, HiLoSend, en);
     
     //ALU control codes
     //  00000 does add
@@ -149,7 +150,8 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
             //
             //NOTE: may no longer apply due to HI and LO format
             5'b00011 : begin
-                HiLoSend <= mulResultSigned;
+                //temp = A * B;
+                HiLoSend <= A * B;
                 en <= 1;
             end
             5'b00100 : ALUResult1 <= B << Shamt;
