@@ -124,10 +124,10 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
         if(B[31] == 1)begin
             tempB = ~tempB;
         end
-        mulResultSigned = tempA * tempB;
-//        if (~(A == 0 || B == 0) && (A[31] != B[31])) begin
-//            mulResultSigned = (~mulResultSigned);
-//        end
+        mulResultSigned <= tempA * tempB;
+        if (~(A == 0 || B == 0) && (A[31] != B[31])) begin
+            mulResultSigned = (~mulResultSigned);
+        end
     end
     
     //always@(ALUControl, A, B, Shamt, mulResult, mulResultSigned, bit21, bit16) begin
@@ -151,7 +151,7 @@ module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bi
             //NOTE: may no longer apply due to HI and LO format
             5'b00011 : begin
                 //temp = A * B;
-                HiLoSend <= A * B;
+                HiLoSend <= mulResultSigned;
                 en <= 1;
             end
             5'b00100 : ALUResult1 <= B << Shamt;
