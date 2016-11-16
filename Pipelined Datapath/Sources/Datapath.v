@@ -66,16 +66,22 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     wire [4:0] PipeShamt;
     wire PipeBit21;
     wire [5:0] PipeInstruction50;
+    wire PipeALUSrc, PipeBranch, PipeMemWrite, PipeMemRead, PipeRegWrite;
+    wire [1:0] PipeRegDst, PipeMemToReg;
+    wire [5:0] PipeALUOp;
     
     // EX/MEM Reg
     wire [31:0] PipeALUResult, PipeAddResult, PipeReadData2Again;
     wire PipeZero, PipeBranchSend;
+    wire PipeBranchAgain, PipeMemWriteAgain, PipeMemReadAgain, PipeRegWriteAgain;
+    wire [1:0] PipeMemToRegAgain;
+    wire [4:0] PipeMUX1Out;
     
     // MEM/WB Reg
-    wire [31:0] PipeReadDataMem, PipeALUResultAgain;
-    wire PipeALUSrc, PipeBranch, PipeMemWrite, PipeMemRead, PipeRegWrite;
-    wire [1:0] PipeRegDst, PipeMemToReg;
-    wire [5:0] PipeALUOp;
+    wire [31:0] PipeReadDataMem, PipeALUResultAgain, PipeExtendedByte, PipeExtendedHalfword;
+    wire PipeRegWriteLast;
+    wire [1:0] PipeMemToRegLast;
+    wire [4:0] PipeMUX1OutLast;
     
     // wires for the open up IFU
     wire [31:0] PCAddResult;
@@ -114,13 +120,13 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     InstructionMemory913 IM(PCResult, Instruction);
     
 //    //module ShiftLeft2(inputVal, shiftedVal);
-    ShiftLeft2 SHL(SignExtended, Shifted);
+    ShiftLeft2 SHL(PipeSignExtended, Shifted);
     
 //    //module ADD(A,B,Out);
     ADD BranchAdd(Shifted, PipePCAddResultAgain, AddResult);
     
 //    //module Mux32Bit2To1(out, inA, inB, sel);
-    Mux32Bit2To1 BranchMux(BranchMUXOut, PipePCAddResult, AddResult, BranchOr);
+    Mux32Bit2To1 BranchMux(BranchMUXOut, PipePCAddResult, PipeAddResult, BranchOr);
     
 //    //module Mux32Bit4To1(out, inA, inB, inC, inD, sel);
     Mux32Bit4To1 JumpMux(JumpMUXOut, BranchMUXOut, Shifted, PipeALUResult, 0, Jump);
@@ -132,10 +138,10 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //    Mux5Bit2to1 MUX1(MUX1Out, Instruction[20:16], Instruction[15:11], RegDst);
     
     //module Mux5Bit4To1(out, inA, inB, inC, inD, sel);
-    Mux5Bit4To1 MUX1(MUX1Out, PipeInstruction[20:16], PipeInstruction[15:11], 5'b11111, 5'b00000, RegDst);
+    Mux5Bit4To1 MUX1(MUX1Out, PipeInstruction2016, PipeInstruction1511, 5'b11111, 5'b00000, PipeRegDst);
     
     //module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegWrite, Clk, ReadData1, ReadData2);
-    RegisterFile RF(PipeInstruction[25:21], PipeInstruction[20:16], MUX1Out, JalMUXOut, RegWrite, Clk, ReadData1, ReadData2);
+    RegisterFile RF(PipeInstruction[25:21], PipeInstruction[20:16], PipeMUX1OutLast, JalMUXOut, PipeRegWriteLast, Clk, ReadData1, ReadData2);
     
 //    module ID_EX (  ALUSrcIn,
 //                        ALUOpIn,
@@ -184,14 +190,14 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     //module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
     ALU32Bit ALU(ALUControl, PipeReadData1, MUX2Out, ALUResult1, Zero, BranchSend, PipeShamt, PipeBit21, PipeInstruction2016[0], Clk);
     
-    //module EX_MEM(addResultIn, ZeroIn, BranchSendIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut,BranchSendOut, ALUResultOut, ReadData2Out, Clk);
-    EX_MEM EXMEM(AddResult, Zero, BranchSend, ALUResult1, PipeReadData2, PipeAddResult, PipeZero, PipeBranchSend, PipeALUResult, PipeReadData2Again, Clk);
+    //module EX_MEM(addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ALUResultIn, ReadData2In, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ALUResultOut, ReadData2Out, Clk);
+    EX_MEM EXMEM(AddResult, Zero, BranchSend, PipeBranch, PipeMemRead, PipeMemWrite, PipeRegWrite, PipeMemToReg, MUX1Out, ALUResult1, PipeReadData2, PipeAddResult, PipeZero, PipeBranchSend, PipeBranchAgain, PipeMemReadAgain, PipeMemWriteAgain, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipeALUResult, PipeReadData2Again, Clk);
     
     //module AND(A,B,ANDOut);
-    AND BranchAnd1(PipeBranch, PipeZero, BranchSel1);
+    AND BranchAnd1(PipeBranchAgain, PipeZero, BranchSel1);
     
     //module AND(A,B,ANDOut);
-    AND BranchAnd2(PipeBranch, PipeBranchSend, BranchSel2);
+    AND BranchAnd2(PipeBranchAgain, PipeBranchSend, BranchSel2);
     
     //module OR(A, B, OROut);
     OR OrBranch(BranchSel1, BranchSel2, BranchOr);
@@ -203,10 +209,10 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     //Mux32Bit2To1 SBHMux(SBHMUXOut, ReadData2, Reduced, SBHMuxSel);
     
     //module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData, StoreMode);
-    DataMemory DM(PipeALUResult, PipeReadData2Again, Clk, MemWrite, MemRead, ReadDataMem, StoreMode);
+    DataMemory DM(PipeALUResult, PipeReadData2Again, Clk, PipeMemWriteAgain, PipeMemReadAgain, ReadDataMem, StoreMode);
     
-    //module MEM_WB(ReadDataMemIn, ALUResultIn, ReadDataMemOut, ALUResultOut, Clk);
-    MEM_WB MEMWB(ReadDataMem, PipeALUResult, PipeReadDataMem, PipeALUResultAgain, Clk);
+    //module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, Clk);
+    MEM_WB MEMWB(ReadDataMem, PipeALUResult, ExtendedByte, ExtendedHalfWord, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipeReadDataMem, PipeALUResultAgain, PipeExtendedByte, PipeExtendedHalfword, PipeRegWriteLast, PipeMemToRegLast, PipeMUX1OutLast, Clk);
     
     //module Mux8Bit4To1(out, inA, inB, inC, inD, sel);
     Mux8Bit4To1 ByteMux(ByteMuxOut, ReadDataMem[7:0], ReadDataMem[15:8], ReadDataMem[23:16], ReadDataMem[31:24], PipeALUResult[1:0]);
@@ -223,7 +229,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     //Mux32Bit2To1 MUX3(MUX3Out, ALUResult1, ReadDataMem, MemToReg);
     
     //module Mux32Bit4To1(out, inA, inB, inC, inD, sel);
-    Mux32Bit4To1 MUX3(MUX3Out, PipeALUResultAgain, PipeReadDataMem, ExtendedByte, ExtendedHalfWord, MemToReg);
+    Mux32Bit4To1 MUX3(MUX3Out, PipeALUResultAgain, PipeReadDataMem, PipeExtendedByte, PipeExtendedHalfword, PipeMemToRegLast);
     
     //module ADD(A,B,Out);
     ADD JalADD(PCResult, 32'h00000004, RAddr);
