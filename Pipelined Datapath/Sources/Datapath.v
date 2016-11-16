@@ -62,7 +62,10 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     wire [31:0] PipeInstruction, PipePCAddResult;
     
     // ID/EX Reg
-    wire [31:0] PipePCAddResultAgain, PipeReadData1, PipeReadData2, PipeSignExtended;
+    wire [31:0] PipePCAddResultAgain, PipeReadData1, PipeReadData2, PipeSignExtended, PipeInstruction2016, PipeInstruction1511;
+    wire [4:0] PipeShamt;
+    wire PipeBit21;
+    wire [5:0] PipeInstruction50;
     
     // EX/MEM Reg
     wire [31:0] PipeALUResult, PipeAddResult, PipeReadData2Again;
@@ -70,6 +73,9 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     
     // MEM/WB Reg
     wire [31:0] PipeReadDataMem, PipeALUResultAgain;
+    wire PipeALUSrc, PipeBranch, PipeMemWrite, PipeMemRead, PipeRegWrite;
+    wire [1:0] PipeRegDst, PipeMemToReg;
+    wire [5:0] PipeALUOp;
     
     // wires for the open up IFU
     wire [31:0] PCAddResult;
@@ -93,7 +99,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //                        Funct,
 //                        ALUControlOutput);
 
-    ALUControl ALUC(ALUOp, PipeInstruction[5:0], ALUControl, Jump);
+    ALUControl ALUC(PipeALUOp, PipeInstruction50, ALUControl, Jump);
     
     //module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk, PCResult, ALUResult;
     //InstructionFetchUnit IFU(Instruction, Reset, SignExtended, BranchOr, Jump, Clk, PCResult, PipeALUResult);
@@ -111,7 +117,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     ShiftLeft2 SHL(SignExtended, Shifted);
     
 //    //module ADD(A,B,Out);
-    ADD BranchAdd(Shifted, PipePCAddResult, AddResult);
+    ADD BranchAdd(Shifted, PipePCAddResultAgain, AddResult);
     
 //    //module Mux32Bit2To1(out, inA, inB, sel);
     Mux32Bit2To1 BranchMux(BranchMUXOut, PipePCAddResult, AddResult, BranchOr);
@@ -131,23 +137,61 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     //module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegWrite, Clk, ReadData1, ReadData2);
     RegisterFile RF(PipeInstruction[25:21], PipeInstruction[20:16], MUX1Out, JalMUXOut, RegWrite, Clk, ReadData1, ReadData2);
     
+//    module ID_EX (  ALUSrcIn,
+//                        ALUOpIn,
+//                        RegDstIn,
+//                        BranchIn,
+//                        MemWriteIn,
+//                        MemReadIn,
+//                        RegWriteIn,
+//                        MemToRegIn,
+//                        PC_Next_in,
+//                        rs_decoded_in,
+//                        rt_decoded_in,
+//                        sign_extend_in,
+//                        rd_instruction_in,
+//                        rt_instruction_in,
+//                        bit21In,
+//                        //Stall,
+//                        CLK,
+//                        ALUSrcOut,
+//                        ALUOpOut,
+//                        RegDstOut,
+//                        BranchOut,
+//                        MemWriteOut,
+//                        MemReadOut,
+//                        RegWriteOut,
+//                        MemToRegOut,
+//                        PC_Next_out,
+//                        rs_decoded_out,
+//                        rt_decoded_out,
+//                        sign_extend_out,
+//                        rt_instruction_out,
+//                        rd_instruction_out
+//                        bit21Out    );
+
+
+    ID_EX IDEX(ALUSrc, ALUOp, RegDst, Branch, MemWrite, MemRead, RegWrite, MemToReg, PipePCAddResult, ReadData1, ReadData2, SignExtended, PipeInstruction[20:16], PipeInstruction[15:11], PipeInstruction[10:6], PipeInstruction[21],
+                PipeInstruction[5:0], Clk, PipeALUSrc, PipeALUOp,PipeRegDst, PipeBranch, PipeMemWrite, PipeMemRead, PipeRegWrite, PipeMemToReg, PipePCAddResultAgain, PipeReadData1, PipeReadData2, PipeSignExtended, PipeInstruction2016,
+                PipeInstruction1511, PipeShamt, PipeBit21, PipeInstruction50); 
+    
     //module SignExtension(in, out);
     SignExtension SignExtend1(PipeInstruction[15:0], SignExtended);
     
     //module Mux32Bit2To1(out, inA, inB, sel);
-    Mux32Bit2To1 MUX2(MUX2Out, ReadData2, SignExtended, ALUSrc);
+    Mux32Bit2To1 MUX2(MUX2Out, PipeReadData2, PipeSignExtended, PipeALUSrc);
     
     //module ALU32Bit(ALUControl, A, B, ALUResult1, Zero, BranchSend, Shamt, bit21, bit16, Clk);
-    ALU32Bit ALU(ALUControl, ReadData1, MUX2Out, ALUResult1, Zero, BranchSend, PipeInstruction[10:6], PipeInstruction[21], PipeInstruction[16], Clk);
+    ALU32Bit ALU(ALUControl, PipeReadData1, MUX2Out, ALUResult1, Zero, BranchSend, PipeShamt, PipeBit21, PipeInstruction2016[0], Clk);
     
     //module EX_MEM(addResultIn, ZeroIn, BranchSendIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut,BranchSendOut, ALUResultOut, ReadData2Out, Clk);
     EX_MEM EXMEM(AddResult, Zero, BranchSend, ALUResult1, PipeReadData2, PipeAddResult, PipeZero, PipeBranchSend, PipeALUResult, PipeReadData2Again, Clk);
     
     //module AND(A,B,ANDOut);
-    AND BranchAnd1(Branch, PipeZero, BranchSel1);
+    AND BranchAnd1(PipeBranch, PipeZero, BranchSel1);
     
     //module AND(A,B,ANDOut);
-    AND BranchAnd2(Branch, PipeBranchSend, BranchSel2);
+    AND BranchAnd2(PipeBranch, PipeBranchSend, BranchSel2);
     
     //module OR(A, B, OROut);
     OR OrBranch(BranchSel1, BranchSel2, BranchOr);
