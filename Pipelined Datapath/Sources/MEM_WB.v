@@ -20,20 +20,33 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, Clk);
+module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk);
 
-    input [31:0] ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn;
-    input Clk;
+    input [31:0] ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, PCAddResultIn;
+    input Clk, RegWriteIn, JalMuxSelIn;
+    input [1:0] MemToRegIn;
+    input [4:0] Mux1In;
     
-    output reg [31:0] ReadDataMemOut, ALUResultOut, ExtendedByteOut, ExtendedHalfwordOut;
+    output reg [31:0] ReadDataMemOut, ALUResultOut, ExtendedByteOut, ExtendedHalfwordOut, PCAddResultOut;
+    output reg RegWriteOut, JalMuxSelOut;
+    output reg [1:0] MemToRegOut;
+    output reg [4:0] Mux1Out;
     
-    reg [31:0] ReadDataMemReg, ALUResultReg, ExtendedByteReg, ExtendedHalfwordReg;
+    reg [31:0] ReadDataMemReg, ALUResultReg, ExtendedByteReg, ExtendedHalfwordReg, PCAddResultReg;
+    reg RegWriteReg, JalMuxSelReg;
+    reg [1:0] MemToRegReg;
+    reg [4:0] Mux1Reg;
     
     always @(negedge Clk) begin
         ReadDataMemOut <= ReadDataMemReg;
         ALUResultOut <= ALUResultReg;
         ExtendedByteOut <= ExtendedByteReg;
         ExtendedHalfwordOut <= ExtendedHalfwordReg;
+        RegWriteOut <= RegWriteReg;
+        MemToRegOut <= MemToRegReg;
+        Mux1Out <= Mux1Reg;
+        PCAddResultOut <= PCAddResultReg;
+        JalMuxSelOut <= JalMuxSelReg;
     end
     
     always @(posedge Clk) begin
@@ -41,6 +54,11 @@ module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, Re
         ALUResultReg <= ALUResultIn;
         ExtendedByteReg <= ExtendedByteIn;
         ExtendedHalfwordReg <= ExtendedHalfwordIn;
+        RegWriteReg <= RegWriteIn;
+        MemToRegReg <= MemToRegIn;
+        Mux1Reg <= Mux1In;
+        PCAddResultReg <= PCAddResultIn;
+        JalMuxSelReg <= JalMuxSelIn;
     end
 
 endmodule
