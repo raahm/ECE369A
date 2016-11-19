@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk);
+module MEM_WB(Reset, Stall, ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk);
 
     input [31:0] ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, PCAddResultIn;
-    input Clk, RegWriteIn, JalMuxSelIn;
+    input Clk, RegWriteIn, JalMuxSelIn, Stall, Reset;
     input [1:0] MemToRegIn;
     input [4:0] Mux1In;
     
@@ -37,28 +37,56 @@ module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, Re
     reg [1:0] MemToRegReg;
     reg [4:0] Mux1Reg;
     
-    always @(negedge Clk) begin
-        ReadDataMemOut <= ReadDataMemReg;
-        ALUResultOut <= ALUResultReg;
-        ExtendedByteOut <= ExtendedByteReg;
-        ExtendedHalfwordOut <= ExtendedHalfwordReg;
-        RegWriteOut <= RegWriteReg;
-        MemToRegOut <= MemToRegReg;
-        Mux1Out <= Mux1Reg;
-        PCAddResultOut <= PCAddResultReg;
-        JalMuxSelOut <= JalMuxSelReg;
+    always @(posedge Clk) begin
+        if(Reset == 0) begin
+            ReadDataMemOut <= ReadDataMemReg;
+            ALUResultOut <= ALUResultReg;
+            ExtendedByteOut <= ExtendedByteReg;
+            ExtendedHalfwordOut <= ExtendedHalfwordReg;
+            RegWriteOut <= RegWriteReg;
+            MemToRegOut <= MemToRegReg;
+            Mux1Out <= Mux1Reg;
+            PCAddResultOut <= PCAddResultReg;
+            JalMuxSelOut <= JalMuxSelReg;
+        end
+        else begin
+            ReadDataMemOut <= 0;
+            ALUResultOut <= 0;
+            ExtendedByteOut <= 0;
+            ExtendedHalfwordOut <= 0;
+            RegWriteOut <= 0;
+            MemToRegOut <= 0;
+            Mux1Out <= 0;
+            PCAddResultOut <= 0;
+            JalMuxSelOut <= 0;
+        end
     end
     
-    always @(posedge Clk) begin
-        ReadDataMemReg <= ReadDataMemIn;
-        ALUResultReg <= ALUResultIn;
-        ExtendedByteReg <= ExtendedByteIn;
-        ExtendedHalfwordReg <= ExtendedHalfwordIn;
-        RegWriteReg <= RegWriteIn;
-        MemToRegReg <= MemToRegIn;
-        Mux1Reg <= Mux1In;
-        PCAddResultReg <= PCAddResultIn;
-        JalMuxSelReg <= JalMuxSelIn;
+    always @(negedge Clk) begin
+        if(Reset == 1) begin
+            ReadDataMemReg <= 0;
+            ALUResultReg <= 0;
+            ExtendedByteReg <= 0;
+            ExtendedHalfwordReg <= 0;
+            RegWriteReg <= 0;
+            MemToRegReg <= 0;
+            Mux1Reg <= 0;
+            PCAddResultReg <= 0;
+            JalMuxSelReg <= 0;
+        end
+        else begin
+            if(Stall == 0) begin
+                ReadDataMemReg <= ReadDataMemIn;
+                ALUResultReg <= ALUResultIn;
+                ExtendedByteReg <= ExtendedByteIn;
+                ExtendedHalfwordReg <= ExtendedHalfwordIn;
+                RegWriteReg <= RegWriteIn;
+                MemToRegReg <= MemToRegIn;
+                Mux1Reg <= Mux1In;
+                PCAddResultReg <= PCAddResultIn;
+                JalMuxSelReg <= JalMuxSelIn;
+            end
+        end
     end
 
 endmodule

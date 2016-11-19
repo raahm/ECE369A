@@ -53,12 +53,19 @@ module DataMemory(Address, WriteData, Clk, MemWrite, MemRead, ReadData, StoreMod
     
     //loop to initialize the values in the data Memory
     initial begin
-        Memory[0] = 32'h0;
-        Memory[1] = 32'h1;
-        Memory[2] = 32'h2;
-        Memory[3] = 32'h3;
-        Memory[4] = 32'h4;
-        Memory[5] = -32'h1;
+        Memory[0] = 32'd100;
+        Memory[1] = 32'd200;
+        Memory[2] = 32'd300;
+        Memory[3] = 32'd400;
+        Memory[4] = 32'd500;
+        Memory[5] = 32'd600;
+        Memory[6] = 32'd700;
+        Memory[7] = 32'd800;
+        Memory[8] = 32'd900;
+        Memory[9] = 32'd1000;
+        Memory[10] = 32'd1100;
+        Memory[11] = 32'd1200;
+
     end
     
     always @(MemRead, Address) begin

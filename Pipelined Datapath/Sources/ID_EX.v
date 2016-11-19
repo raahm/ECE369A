@@ -1,6 +1,7 @@
 `timescale 1ns/1ps
 
-module ID_EX (  ALUSrcIn,
+module ID_EX (  Reset,
+                ALUSrcIn,
                 ALUOpIn,
                 RegDstIn,
                 BranchIn,
@@ -128,38 +129,62 @@ module ID_EX (  ALUSrcIn,
 	output reg [1:0] StoreModeOut;
 	
 //	input Stall;
-	input CLK;
+	input CLK, Reset;
 	
-	always@(negedge CLK) begin
+	always@(posedge CLK) begin
 		//read
 //		M_out <= M_reg;
 //		EX_out <= EX_reg;
-        ALUSrcOut <= ALUSrcReg;
-        ALUOpOut <= ALUOpReg;
-        RegDstOut <= RegDstReg;
-        BranchOut <= BranchReg;
-        MemWriteOut <= MemWriteReg;
-        MemReadOut <= MemReadReg;
-        RegWriteOut <= RegWriteReg;
-        MemToRegOut <= MemToRegReg;
-		PC_Next_out <= PC_Next_reg;
-		rs_decoded_out <= rs_decoded_reg;
-		rt_decoded_out <= rt_decoded_reg;
-		sign_extend_out <= sign_extend_reg;
-		rt_instruction_out <= rt_instruction_reg;
-		rd_instruction_out <= rd_instruction_reg;
-		ShamtOut <= ShamtReg;
-		bit21Out <= bit21Reg;
-		Instruction50Out <= Instruction50Reg;
-		JalMuxSelOut <= JalMuxSelReg;
-		StoreModeOut <= StoreModeReg;
+        if(Reset == 0) begin
+            ALUSrcOut <= ALUSrcReg;
+            ALUOpOut <= ALUOpReg;
+            RegDstOut <= RegDstReg;
+            BranchOut <= BranchReg;
+            MemWriteOut <= MemWriteReg;
+            MemReadOut <= MemReadReg;
+            RegWriteOut <= RegWriteReg;
+            MemToRegOut <= MemToRegReg;
+            PC_Next_out <= PC_Next_reg;
+            rs_decoded_out <= rs_decoded_reg;
+            rt_decoded_out <= rt_decoded_reg;
+            sign_extend_out <= sign_extend_reg;
+            rt_instruction_out <= rt_instruction_reg;
+            rd_instruction_out <= rd_instruction_reg;
+            ShamtOut <= ShamtReg;
+            bit21Out <= bit21Reg;
+            Instruction50Out <= Instruction50Reg;
+            JalMuxSelOut <= JalMuxSelReg;
+            StoreModeOut <= StoreModeReg;
+		end
+		else begin
+            ALUSrcOut <= 0;
+            ALUOpOut <= 0;
+            RegDstOut <= 0;
+            BranchOut <= 0;
+            MemWriteOut <= 0;
+            MemReadOut <= 0;
+            RegWriteOut <= 0;
+            MemToRegOut <= 0;
+            PC_Next_out <= 0;
+            rs_decoded_out <= 0;
+            rt_decoded_out <= 0;
+            sign_extend_out <= 0;
+            rt_instruction_out <= 0;
+            rd_instruction_out <= 0;
+            ShamtOut <= 0;
+            bit21Out <= 0;
+            Instruction50Out <= 0;
+            JalMuxSelOut <= 0;
+            StoreModeOut <= 0;
+		end
 	end
-	
-	always@(posedge CLK) begin
+    
+	always@(negedge CLK) begin
 		//write
 		//if(Stall == 0) begin
 //			M_reg <= M_in;
 //			EX_reg <= EX_in;
+        if(Reset == 0) begin
             ALUSrcReg <= ALUSrcIn;
             ALUOpReg <= ALUOpIn;
             RegDstReg <= RegDstIn;
@@ -179,7 +204,28 @@ module ID_EX (  ALUSrcIn,
 			Instruction50Reg <= Instruction50In;
 			JalMuxSelReg <= JalMuxSelIn;
 			StoreModeReg <= StoreModeIn;
-		//end
+		end
+		else begin
+		    ALUSrcReg <= 0;
+            ALUOpReg <= 0;
+            RegDstReg <= 0;
+            BranchReg <= 0;
+            MemWriteReg <= 0;
+            MemReadReg <= 0;
+            RegWriteReg <= 0;
+            MemToRegReg <= 0;
+            PC_Next_reg <= 0;
+            rs_decoded_reg <= 0;
+            rt_decoded_reg <= 0;
+            sign_extend_reg <= 0;
+            rt_instruction_reg <= 0;
+            rd_instruction_reg <= 0;
+            ShamtReg <= 0;
+            bit21Reg <= 0;
+            Instruction50Reg <= 0;
+            JalMuxSelReg <= 0;
+            StoreModeReg <= 0;  
+		end
 	end
 	
 endmodule

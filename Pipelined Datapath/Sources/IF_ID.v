@@ -20,22 +20,36 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IF_ID(addIn, instructionIn, addOut, instructionOut, Clk);
+module IF_ID(Reset, Stall, addIn, instructionIn, addOut, instructionOut, Clk);
 
     input [31:0] addIn, instructionIn;
-    input Clk;
+    input Clk, Stall, Reset;
     output reg [31:0] addOut, instructionOut;
     
     reg [31:0] addReg, instructionReg;
     
-    always@(negedge Clk) begin
-        addOut <= addReg;
-        instructionOut <= instructionReg;
+    always@(posedge Clk) begin
+        if(Reset == 0) begin
+            addOut <= addReg;
+            instructionOut <= instructionReg;
+        end
+        else begin
+            addOut <= 0;
+            instructionOut <= 0;
+        end
     end
     
-    always@(posedge Clk) begin
-        addReg <= addIn;
-        instructionReg <= instructionIn;
+    always@(negedge Clk) begin
+        if(Reset == 1) begin
+            addReg <= 0;
+            instructionReg <= 0;
+        end
+        else begin
+            if(Stall == 0) begin
+                addReg <= addIn;
+                instructionReg <= instructionIn;
+            end
+        end
     end
 
 endmodule
