@@ -20,10 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module HazardDetection(Clk, Reset, Stall);
+module HazardDetection(Clk, Reset, Instruction, Stall, PCStall);
 
     input Clk, Reset;
-    output reg Stall;
+    input [5:0] Instruction;
+    output reg Stall, PCStall;
     
     always @(posedge Clk) begin
 //        if(Reset == 1) begin
@@ -33,6 +34,17 @@ module HazardDetection(Clk, Reset, Stall);
 //            Stall <= 0;
 //        end
         Stall <= 0;
+        PCStall <= 0;
+        case(Instruction)
+            6'b000100: begin
+                Stall <= 1;
+                PCStall <= 1;
+            end
+            default: begin
+                Stall <= 0;
+                PCStall <= 0;
+            end
+        endcase
     end
 
 endmodule

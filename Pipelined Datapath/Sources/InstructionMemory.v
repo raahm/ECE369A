@@ -42,12 +42,12 @@ module InstructionMemory(Address, Instruction);
 
     output reg [31:0] Instruction;    // Instruction at Memory location Address
     
-    reg [31:0] Memory[0:127];
+    reg [31:0] memory[0:127];
     //integer Counter;
     
     initial begin
         
-        $readmemh ("Instruction_memory.txt", Memory);
+//        $readmemh ("Instruction_memory.txt", Memory);
 //        Memory[0] <= 32'b00000000000000001001000000100000; //	main:	add	$s2, $zero, $zero
 //        Memory[1] <= 32'b00000000000000001000000000100000; //		add	$s0, $zero, $zero
 //        Memory[2] <= 32'b00000000000000001000100000100000; //		add	$s1, $zero, $zero
@@ -59,7 +59,37 @@ module InstructionMemory(Address, Instruction);
 //        Memory[6] <= 32'b00000000000000001001000000100000; //	main:	add	$s2, $zero, $zero
 //        Memory[7] <= 32'b00000000000000001000000000100000; //        add    $s0, $zero, $zero
 //        Memory[8] <= 32'b00000000000000001000100000100000; //        add    $s1, $zero, $zero
-////        Memory[10] <= 32'b10001110010100100000000000000000; //        lw    $s2, 0($s2)        
+////        Memory[10] <= 32'b10001110010100100000000000000000; //        lw    $s2, 0($s2)
+
+    memory[0] = 32'b00100000000100000000000000000010;	//	main:	addi	$s0, $zero, 2
+    memory[1] = 32'b00100000000100010000000000000010;    //        addi    $s1, $zero, 2
+    memory[2] = 32'b00100000000100100000000000000011;    //        addi    $s2, $zero, 3
+    memory[3] = 32'b00100000000100110000000000000100;    //        addi    $s3, $zero, 4
+    memory[4] = 32'b00100000000101000000000000000101;    //        addi    $s4, $zero, 5
+    memory[5] = 32'b00100000000101010000000000000110;    //        addi    $s5, $zero, 6
+    memory[6] = 32'b00100000000101100000000000000111;    //        addi    $s6, $zero, 7
+    memory[7] = 32'b00100000000101110000000000001000;    //        addi    $s7, $zero, 8
+    memory[8] = 32'b00000010001000001001000000100100;    //        and    $s2, $s1, $zero
+    memory[9] = 32'b00000010001100001001100000100010;    //        sub    $s3, $s1, $s0
+    memory[10] = 32'b00000010000000001010000000100111;    //        nor    $s4, $s0, $zero
+    memory[11] = 32'b00000010000000001010100000100111;    //        nor    $s5, $s0, $zero
+    memory[12] = 32'b00000000000000001011000000100101;    //        or    $s6, $zero, $zero
+    memory[13] = 32'b00000010001000001011100000100101;    //        or    $s7, $s1, $zero
+    memory[14] = 32'b00000000000100001001000010000000;    //        sll    $s2, $s0, 2
+    memory[15] = 32'b00000010001100001001100000000100;    //        sllv    $s3, $s0, $s1
+    memory[16] = 32'b00000010000000001010000000101010;    //        slt    $s4, $s0, $zero
+    memory[17] = 32'b00000010000100011010100000101010;    //        slt    $s5, $s0, $s1
+    memory[18] = 32'b00000000000100011011000001000011;    //        sra    $s6, $s1, 1
+    memory[19] = 32'b00000000000100011011100000000111;    //        srav    $s7, $s1, $zero
+    memory[20] = 32'b00000000000100011001000001000010;    //        srl    $s2, $s1, 1
+    memory[21] = 32'b00000000000100011001100011000000;    //        sll    $s3, $s1, 3
+    memory[22] = 32'b00000000000100001010000011000010;    //        srl    $s4, $s0, 3
+    memory[23] = 32'b00000010001100001010100000000100;    //        sllv    $s5, $s0, $s1
+    memory[24] = 32'b00000010001100001011000000000110;    //        srlv    $s6, $s0, $s1
+    memory[25] = 32'b00000010000100011011100000100110;    //        xor    $s7, $s0, $s1
+    memory[26] = 32'b00000010000100011000000000100110;    //        xor    $s0, $s0, $s1
+    memory[27] = 32'b00100000000010100000000000000100;    //        addi    $t2, $zero, 4
+       
     end
     
 //    initial begin
@@ -127,7 +157,7 @@ module InstructionMemory(Address, Instruction);
 //    end
     
     always@(Address) begin
-        Instruction <= Memory[Address>>2];
+        Instruction <= memory[Address>>2];
     end
 
 endmodule

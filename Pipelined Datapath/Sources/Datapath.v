@@ -90,6 +90,10 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     // Stall signals
     wire IFIDStall;
     
+    // For preventing PC from incrementing for Branch instructions
+    wire [31:0] PCMUXOut;
+    wire PCStall;
+    
     // for beginning logic
 //    wire BeginningMuxOut, BeginningMuxSel;
     
@@ -113,20 +117,22 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 
     ALUControl ALUC(PipeALUOp, PipeInstruction50, ALUControl, Jump);
     
-    //module HazardDetection(Clk, Reset, Stall, BeginningMuxSel);
-    HazardDetection HD(Clk, Reset, IFIDStall);
+    //module HazardDetection(Clk, Reset, Instruction, Stall, PCStall);
+    HazardDetection HD(Clk, Reset, PipeInstruction[31:26], IFIDStall, PCStall);
     
     //module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk, PCResult, ALUResult;
     //InstructionFetchUnit IFU(Instruction, Reset, SignExtended, BranchOr, Jump, Clk, PCResult, PipeALUResult);
     
 //    //module ProgramCounter(Address, PCResult, Reset, Clk);
-    ProgramCounter PC(JumpMUXOut, PCResult, Reset, Clk);
+    ProgramCounter PC(PCMUXOut, PCResult, Reset, Clk);
     
 //    //module PCAdder(PCResult, PCAddResult);
     PCAdder PCAdd(PCResult, PCAddResult);
     
 //    //module InstructionMemory(Address, Instruction);
     InstructionMemory IM(PCResult, Instruction);
+    
+    Mux32Bit2To1 PCMUX(PCMUXOut, JumpMUXOut, PCResult, PCStall);
     
 //    //module ShiftLeft2(inputVal, shiftedVal);
     ShiftLeft2 SHL(PipeSignExtended, Shifted);
