@@ -91,8 +91,12 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     wire IFIDStall;
     
     // For preventing PC from incrementing for Branch instructions
+    // FIXME: may not be necessary
     wire [31:0] PCMUXOut;
     wire PCStall;
+    
+    // For flushing from the pipeline for branch instructions
+    wire Flush;
     
     // for beginning logic
 //    wire BeginningMuxOut, BeginningMuxSel;
@@ -117,8 +121,8 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 
     ALUControl ALUC(PipeALUOp, PipeInstruction50, ALUControl, Jump);
     
-    //module HazardDetection(Clk, Reset, Instruction, Stall, PCStall);
-    HazardDetection HD(Clk, Reset, PipeInstruction[31:26], IFIDStall, PCStall);
+    //module HazardDetection(Clk, Reset, Branch, Stall, PCStall, Flush);
+    HazardDetection HD(Clk, Reset, BranchOr, IFIDStall, PCStall, Flush);
     
     //module InstructionFetchUnit(Instruction, Reset, SignExtended, BranchSel, JumpSel, Clk, PCResult, ALUResult;
     //InstructionFetchUnit IFU(Instruction, Reset, SignExtended, BranchOr, Jump, Clk, PCResult, PipeALUResult);

@@ -40,7 +40,8 @@ module ID_EX (  Reset,
 				bit21Out,
 				Instruction50Out,
 				JalMuxSelOut,
-				StoreModeOut);
+				StoreModeOut,
+				Flush);
 
     
     //
@@ -129,7 +130,7 @@ module ID_EX (  Reset,
 	output reg [1:0] StoreModeOut;
 	
 //	input Stall;
-	input CLK, Reset;
+	input CLK, Reset, Flush;
 	
 	always@(negedge CLK) begin
 		//read
@@ -155,6 +156,9 @@ module ID_EX (  Reset,
             Instruction50Out <= Instruction50Reg;
             JalMuxSelOut <= JalMuxSelReg;
             StoreModeOut <= StoreModeReg;
+		end
+		else if(Flush == 1) begin
+		    
 		end
 		else begin
             ALUSrcOut <= 0;
