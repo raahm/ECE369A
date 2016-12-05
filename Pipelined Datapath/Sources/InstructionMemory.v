@@ -61,7 +61,7 @@ module InstructionMemory(Address, Instruction);
 //        Memory[8] <= 32'b00000000000000001000100000100000; //        add    $s1, $zero, $zero
 ////        Memory[10] <= 32'b10001110010100100000000000000000; //        lw    $s2, 0($s2)
 
-    memory[0] = 32'b00100000000100000000000000000010;	//	main:	addi	$s0, $zero, 2
+    memory[0] = 32'b00100000000100000000000000000001;	//	main:	addi	$s0, $zero, 2
     memory[1] = 32'b00100000000100010000000000000010;    //        addi    $s1, $zero, 2
     memory[2] = 32'b00100000000100100000000000000011;    //        addi    $s2, $zero, 3
     memory[3] = 32'b00100000000100110000000000000100;    //        addi    $s3, $zero, 4

@@ -131,7 +131,7 @@ module ID_EX (  Reset,
 //	input Stall;
 	input CLK, Reset;
 	
-	always@(posedge CLK) begin
+	always@(negedge CLK) begin
 		//read
 //		M_out <= M_reg;
 //		EX_out <= EX_reg;
@@ -179,7 +179,7 @@ module ID_EX (  Reset,
 		end
 	end
     
-	always@(negedge CLK) begin
+	always@(posedge CLK) begin
 		//write
 		//if(Stall == 0) begin
 //			M_reg <= M_in;
