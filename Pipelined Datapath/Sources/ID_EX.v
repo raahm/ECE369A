@@ -136,7 +136,28 @@ module ID_EX (  Reset,
 		//read
 //		M_out <= M_reg;
 //		EX_out <= EX_reg;
-        if(Reset == 0) begin
+		if(Flush == 1) begin
+            ALUSrcOut <= 0;
+            ALUOpOut <= 0;
+            RegDstOut <= 0;
+            BranchOut <= 0;
+            MemWriteOut <= 0;
+            MemReadOut <= 0;
+            RegWriteOut <= 0;
+            MemToRegOut <= 0;
+            ShamtOut <= 0;
+            bit21Out <= 0;
+            Instruction50Out <= 0;
+            JalMuxSelOut <= 0;
+            StoreModeOut <= 0;
+            PC_Next_out <= PC_Next_reg;
+            rs_decoded_out <= rs_decoded_reg;
+            rt_decoded_out <= rt_decoded_reg;
+            sign_extend_out <= sign_extend_reg;
+            rt_instruction_out <= rt_instruction_reg;
+            rd_instruction_out <= rd_instruction_reg;
+        end        
+        else if(Reset == 0) begin
             ALUSrcOut <= ALUSrcReg;
             ALUOpOut <= ALUOpReg;
             RegDstOut <= RegDstReg;
@@ -156,9 +177,6 @@ module ID_EX (  Reset,
             Instruction50Out <= Instruction50Reg;
             JalMuxSelOut <= JalMuxSelReg;
             StoreModeOut <= StoreModeReg;
-		end
-		else if(Flush == 1) begin
-		    
 		end
 		else begin
             ALUSrcOut <= 0;

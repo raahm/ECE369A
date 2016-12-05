@@ -199,12 +199,13 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //                    ShamtOut,    
 //                    bit21Out,
 //                    Instruction50Out,
-//                    JalMuxSelOut);
+//                    JalMuxSelOut,
+//                    Flush);
 
 
     ID_EX IDEX(Reset, ALUSrc, ALUOp, RegDst, Branch, MemWrite, MemRead, RegWrite, MemToReg, PipePCAddResult, ReadData1, ReadData2, SignExtended, PipeInstruction[15:11], PipeInstruction[20:16], PipeInstruction[10:6], PipeInstruction[21],
                 PipeInstruction[5:0], JalMuxSel, StoreMode, Clk, PipeALUSrc, PipeALUOp,PipeRegDst, PipeBranch, PipeMemWrite, PipeMemRead, PipeRegWrite, PipeMemToReg, PipePCAddResultAgain, PipeReadData1, PipeReadData2, PipeSignExtended, PipeInstruction2016,
-                PipeInstruction1511, PipeShamt, PipeBit21, PipeInstruction50, PipeJalMuxSel, PipeStoreMode); 
+                PipeInstruction1511, PipeShamt, PipeBit21, PipeInstruction50, PipeJalMuxSel, PipeStoreMode, Flush); 
     
     //module SignExtension(in, out);
     SignExtension SignExtend1(PipeInstruction[15:0], SignExtended);
@@ -218,7 +219,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     ALU32Bit ALU(ALUControl, PipeReadData1, MUX2Out, ALUResult1, Zero, BranchSend, PipeShamt, PipeBit21, PipeInstruction2016[0], Clk);
     
     //module EX_MEM(addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ShiftedIn, PCAddResultIn, JalMuxSelIn, JumpIn, StoreModeIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ShiftedOut, PCAddResultOut, JalMuxSelOut, JumpOut, StoreModeOut, ALUResultOut, ReadData2Out, Clk);
-    EX_MEM EXMEM(Reset, AddResult, Zero, BranchSend, PipeBranch, PipeMemRead, PipeMemWrite, PipeRegWrite, PipeMemToReg, MUX1Out, Shifted, PipePCAddResultAgain, PipeJalMuxSel, Jump, PipeStoreMode, ALUResult1, PipeReadData2, PipeAddResult, PipeZero, PipeBranchSend, PipeBranchAgain, PipeMemReadAgain, PipeMemWriteAgain, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipeShifted, PipePCAddResultAgain2, PipeJalMuxSelAgain, PipeJump, PipeStoreModeAgain, PipeALUResult, PipeReadData2Again, Clk);
+    EX_MEM EXMEM(Reset, AddResult, Zero, BranchSend, PipeBranch, PipeMemRead, PipeMemWrite, PipeRegWrite, PipeMemToReg, MUX1Out, Shifted, PipePCAddResultAgain, PipeJalMuxSel, Jump, PipeStoreMode, ALUResult1, PipeReadData2, PipeAddResult, PipeZero, PipeBranchSend, PipeBranchAgain, PipeMemReadAgain, PipeMemWriteAgain, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipeShifted, PipePCAddResultAgain2, PipeJalMuxSelAgain, PipeJump, PipeStoreModeAgain, PipeALUResult, PipeReadData2Again, Clk, Flush);
     
     //module AND(A,B,ANDOut);
     AND BranchAnd1(PipeBranchAgain, PipeZero, BranchSel1);
@@ -239,7 +240,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     DataMemory DM(PipeALUResult, PipeReadData2Again, Clk, PipeMemWriteAgain, PipeMemReadAgain, ReadDataMem, PipeStoreModeAgain);
     
     //module MEM_WB(ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk);
-    MEM_WB MEMWB(Reset, IFIDStall, ReadDataMem, PipeALUResult, ExtendedByte, ExtendedHalfWord, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipePCAddResultAgain2, PipeJalMuxSelAgain, PipeReadDataMem, PipeALUResultAgain, PipeExtendedByte, PipeExtendedHalfword, PipeRegWriteLast, PipeMemToRegLast, PipeMUX1OutLast, PipePCAddResultLast, PipeJalMuxSelLast, Clk);
+    MEM_WB MEMWB(Reset, IFIDStall, ReadDataMem, PipeALUResult, ExtendedByte, ExtendedHalfWord, PipeRegWriteAgain, PipeMemToRegAgain, PipeMUX1Out, PipePCAddResultAgain2, PipeJalMuxSelAgain, PipeReadDataMem, PipeALUResultAgain, PipeExtendedByte, PipeExtendedHalfword, PipeRegWriteLast, PipeMemToRegLast, PipeMUX1OutLast, PipePCAddResultLast, PipeJalMuxSelLast, Clk, Flush);
     
     //module Mux8Bit4To1(out, inA, inB, inC, inD, sel);
     Mux8Bit4To1 ByteMux(ByteMuxOut, ReadDataMem[7:0], ReadDataMem[15:8], ReadDataMem[23:16], ReadDataMem[31:24], PipeALUResult[1:0]);

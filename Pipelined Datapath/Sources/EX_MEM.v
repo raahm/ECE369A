@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ShiftedIn, PCAddResultIn, JalMuxSelIn, JumpIn, StoreModeIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ShiftedOut, PCAddResultOut, JalMuxSelOut, JumpOut, StoreModeOut, ALUResultOut, ReadData2Out, Clk);
+module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ShiftedIn, PCAddResultIn, JalMuxSelIn, JumpIn, StoreModeIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ShiftedOut, PCAddResultOut, JalMuxSelOut, JumpOut, StoreModeOut, ALUResultOut, ReadData2Out, Clk, Flush);
 
     input [31:0] addResultIn, ALUResultIn, ReadData2In;
-    input Clk, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, JalMuxSelIn, Reset;
+    input Clk, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, JalMuxSelIn, Reset, Flush;
     input [1:0] MemToRegIn, StoreModeIn, JumpIn;
     input [4:0] Mux1In;
     input [31:0] ShiftedIn, PCAddResultIn;
@@ -41,7 +41,25 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
     reg [31:0] ShiftedReg, PCAddResultReg;
     
     always @(posedge Clk) begin
-        if(Reset == 0) begin
+        if(Flush == 1) begin
+            ZeroOut <= 0;
+            BranchSendOut <= 0;
+            BranchOut <= 0;
+            MemReadOut <= 0;
+            MemWriteOut <= 0;
+            RegWriteOut <= 0;
+            MemToRegOut <= 0;
+            JalMuxSelOut <= 0;
+            StoreModeOut <= 0;
+            JumpOut <= 0;
+            Mux1Out <= Mux1Reg;
+            ShiftedOut <= ShiftedReg;
+            PCAddResultOut <= PCAddResultReg;
+            AddResultOut <= addResultReg;
+            ALUResultOut <= ALUResultReg;
+            ReadData2Out <= ReadData2Reg;
+        end
+        else if(Reset == 0) begin
             AddResultOut <= addResultReg;
             ALUResultOut <= ALUResultReg;
             ReadData2Out <= ReadData2Reg;

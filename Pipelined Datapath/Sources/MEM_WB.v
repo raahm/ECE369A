@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module MEM_WB(Reset, Stall, ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk);
+module MEM_WB(Reset, Stall, ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, RegWriteIn, MemToRegIn, Mux1In, PCAddResultIn, JalMuxSelIn, ReadDataMemOut, ALUResultOut,ExtendedByteOut, ExtendedHalfwordOut, RegWriteOut, MemToRegOut, Mux1Out, PCAddResultOut, JalMuxSelOut, Clk, Flush);
 
     input [31:0] ReadDataMemIn, ALUResultIn, ExtendedByteIn, ExtendedHalfwordIn, PCAddResultIn;
-    input Clk, RegWriteIn, JalMuxSelIn, Stall, Reset;
+    input Clk, RegWriteIn, JalMuxSelIn, Stall, Reset, Flush;
     input [1:0] MemToRegIn;
     input [4:0] Mux1In;
     
@@ -38,7 +38,18 @@ module MEM_WB(Reset, Stall, ReadDataMemIn, ALUResultIn, ExtendedByteIn, Extended
     reg [4:0] Mux1Reg;
     
     always @(posedge Clk) begin
-        if(Reset == 0) begin
+        if(Flush == 1) begin
+            RegWriteOut <= 0;
+            MemToRegOut <= 0;
+            JalMuxSelOut <= 0;
+            ReadDataMemOut <= ReadDataMemReg;
+            ALUResultOut <= ALUResultReg;
+            ExtendedByteOut <= ExtendedByteReg;
+            ExtendedHalfwordOut <= ExtendedHalfwordReg;
+            Mux1Out <= Mux1Reg;
+            PCAddResultOut <= PCAddResultReg;
+        end
+        else if(Reset == 0) begin
             ReadDataMemOut <= ReadDataMemReg;
             ALUResultOut <= ALUResultReg;
             ExtendedByteOut <= ExtendedByteReg;
