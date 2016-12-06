@@ -1,8 +1,8 @@
 .text
 .globl main
 
-main:
-	add	$s0, $zero, $zero
+
+main:	add	$s0, $zero, $zero
 	add	$s1, $zero, $zero
 	addi	$t0, $zero, 1
 	addi	$t1, $zero, 2
@@ -10,8 +10,8 @@ main:
 	addi	$t4, $zero, 4
 	addi	$t5, $zero, 5
 	addi	$t6, $zero, 6
-start:
-	addi	$s1, $s1, 1
+	
+	start: addi	$s1, $s1, 1
 	addi	$s2, $zero, 6
 	addi	$s3, $zero, 6
 	addi	$s4, $zero, 7

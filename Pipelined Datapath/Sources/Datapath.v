@@ -100,6 +100,9 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     
     // for beginning logic
 //    wire BeginningMuxOut, BeginningMuxSel;
+
+    // for stalling pc
+    wire StallClk;
     
 //    module Control(	CtrlInput,
 //              FunctionCode,
@@ -112,6 +115,9 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
 //				Branch, 
 //				Jump,
 //				ALUOp);
+
+    //module ClockStall(Clk, ClkOut);
+    ClockStall ClkStl(Clk, StallClk);
 
     Control controller(PipeInstruction[31:26], PipeInstruction[5:0], RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, Branch, ALUOp, StoreMode, JalMuxSel);
     
@@ -128,7 +134,7 @@ module Datapath(Reset, Clk, PCResult, JalMUXOut);
     //InstructionFetchUnit IFU(Instruction, Reset, SignExtended, BranchOr, Jump, Clk, PCResult, PipeALUResult);
     
 //    //module ProgramCounter(Address, PCResult, Reset, Clk);
-    ProgramCounter PC(PCMUXOut, PCResult, Reset, Clk);
+    ProgramCounter PC(PCMUXOut, PCResult, Reset, Clk, StallClk);
     
 //    //module PCAdder(PCResult, PCAddResult);
     PCAdder PCAdd(PCResult, PCAddResult);
