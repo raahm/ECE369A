@@ -47,7 +47,7 @@ module InstructionMemory(Address, Instruction);
     
     initial begin
         
-        $readmemh ("Instruction_memory.txt", Memory);
+        $readmemh ("Instruction_memory.txt", memory);
 
 
 //        memory[0]<=32'b00000000000000001000000000100000; // ->	main:	add	$s0, $zero, $zero

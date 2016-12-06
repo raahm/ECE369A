@@ -30,16 +30,19 @@ module ClockStall(Clk, ClkOut);
     
     initial begin
         DivCnt <= 0;
+        ClkInt <= 0;
     end
     
     always@(posedge Clk) begin
         if(DivCnt == 4) begin
-            ClkOut <= 1;
+            ClkOut <= ~ClkInt;
+            ClkInt <= ~ClkInt;
             DivCnt <= 0;
         end
         else begin
             DivCnt <= DivCnt + 1;
-            ClkOut <= 0;
+            ClkInt <= ClkInt;
+            ClkOut <= ClkOut;
         end
     end
 

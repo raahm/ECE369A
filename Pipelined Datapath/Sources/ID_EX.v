@@ -20,6 +20,9 @@ module ID_EX (  Reset,
 				Instruction50In,
 				JalMuxSelIn,
 				StoreModeIn,
+				rs_in,
+				rt_in,
+				rd_in,
 				//Stall,
 				CLK,
                 ALUSrcOut,
@@ -41,6 +44,9 @@ module ID_EX (  Reset,
 				Instruction50Out,
 				JalMuxSelOut,
 				StoreModeOut,
+				rs_out,
+				rt_out,
+				rd_out,
 				Flush);
 
     
@@ -129,6 +135,18 @@ module ID_EX (  Reset,
 	reg [1:0] StoreModeReg;
 	output reg [1:0] StoreModeOut;
 	
+	input [4:0] rs_in;
+	reg [4:0] rs_reg;
+	output reg [4:0] rs_out;
+	
+	input [4:0] rt_in;
+    reg [4:0] rt_reg;
+    output reg [4:0] rt_out;
+    
+   	input [4:0] rd_in;
+    reg [4:0] rd_reg;
+    output reg [4:0] rd_out;	
+	
 //	input Stall;
 	input CLK, Reset, Flush;
 	
@@ -177,6 +195,9 @@ module ID_EX (  Reset,
             Instruction50Out <= Instruction50Reg;
             JalMuxSelOut <= JalMuxSelReg;
             StoreModeOut <= StoreModeReg;
+            rs_out <= rs_reg;
+            rt_out <= rt_reg;
+            rd_out <= rd_reg;
 		end
 		else begin
             ALUSrcOut <= 0;
@@ -198,6 +219,9 @@ module ID_EX (  Reset,
             Instruction50Out <= 0;
             JalMuxSelOut <= 0;
             StoreModeOut <= 0;
+			rs_out <= 0;
+            rt_out <= 0;
+            rd_out <= 0;
 		end
 	end
     
@@ -226,6 +250,9 @@ module ID_EX (  Reset,
 			Instruction50Reg <= Instruction50In;
 			JalMuxSelReg <= JalMuxSelIn;
 			StoreModeReg <= StoreModeIn;
+			rs_reg <= rs_in;
+			rt_reg <= rt_in;
+			rd_reg <= rd_in;
 		end
 		else begin
 		    ALUSrcReg <= 0;

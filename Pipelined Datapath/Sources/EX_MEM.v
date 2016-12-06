@@ -20,22 +20,25 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ShiftedIn, PCAddResultIn, JalMuxSelIn, JumpIn, StoreModeIn, ALUResultIn, ReadData2In, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ShiftedOut, PCAddResultOut, JalMuxSelOut, JumpOut, StoreModeOut, ALUResultOut, ReadData2Out, Clk, Flush);
+module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, MemToRegIn, Mux1In, ShiftedIn, PCAddResultIn, JalMuxSelIn, JumpIn, StoreModeIn, ALUResultIn, ReadData2In, rd_in, rt_imm_in, AddResultOut, ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, MemToRegOut, Mux1Out, ShiftedOut, PCAddResultOut, JalMuxSelOut, JumpOut, StoreModeOut, ALUResultOut, ReadData2Out, rd_out, rt_imm_out, Clk, Flush);
 
     input [31:0] addResultIn, ALUResultIn, ReadData2In;
     input Clk, ZeroIn, BranchSendIn, BranchIn, MemReadIn, MemWriteIn, RegWriteIn, JalMuxSelIn, Reset, Flush;
+    input [4:0] rd_in, rt_imm_in;
     input [1:0] MemToRegIn, StoreModeIn, JumpIn;
     input [4:0] Mux1In;
     input [31:0] ShiftedIn, PCAddResultIn;
     
     output reg [31:0] AddResultOut, ALUResultOut, ReadData2Out;
     output reg ZeroOut, BranchSendOut, BranchOut, MemReadOut, MemWriteOut, RegWriteOut, JalMuxSelOut;
+    output reg [4:0] rd_out, rt_imm_out;
     output reg [1:0] MemToRegOut, StoreModeOut, JumpOut;
     output reg [4:0] Mux1Out;
     output reg [31:0] ShiftedOut, PCAddResultOut;
     
     reg [31:0] addResultReg, ALUResultReg, ReadData2Reg;
     reg ZeroReg, BranchSendReg, BranchReg, MemReadReg, MemWriteReg, RegWriteReg, JalMuxSelReg;
+    reg [4:0] rd_reg, rt_imm_reg;
     reg [1:0] MemToRegReg, StoreModeReg, JumpReg;
     reg [4:0] Mux1Reg;
     reg [31:0] ShiftedReg, PCAddResultReg;
@@ -58,6 +61,8 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
             AddResultOut <= addResultReg;
             ALUResultOut <= ALUResultReg;
             ReadData2Out <= ReadData2Reg;
+            rd_out <= 0;
+            rt_imm_out <= 0;
         end
         else if(Reset == 0) begin
             AddResultOut <= addResultReg;
@@ -76,6 +81,8 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
             JalMuxSelOut <= JalMuxSelReg;
             StoreModeOut <= StoreModeReg;
             JumpOut <= JumpReg;
+            rd_out <= rd_reg;
+            rt_imm_out <= rt_imm_reg;
         end
         else begin
             AddResultOut <= 0;
@@ -94,6 +101,8 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
             JalMuxSelOut <= 0;
             StoreModeOut <= 0;
             JumpOut <= 0;
+            rd_out <= 0;
+            rt_imm_out <= 0;
         end
     end
     
@@ -115,6 +124,8 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
             JalMuxSelReg <= JalMuxSelIn;
             StoreModeReg <= StoreModeIn;
             JumpReg <= JumpIn;
+            rd_reg <= rd_in;
+            rt_imm_reg <= rt_imm_in;
         end
         else begin
             addResultReg <= 0;
@@ -132,7 +143,9 @@ module EX_MEM(Reset, addResultIn, ZeroIn, BranchSendIn, BranchIn, MemReadIn, Mem
             PCAddResultReg <= 0;
             JalMuxSelReg <= 0;
             StoreModeReg <= 0;
-            JumpReg <= 0;            
+            JumpReg <= 0;
+            rd_reg <= 0;
+            rt_imm_reg <= 0;
         end
     end
 
